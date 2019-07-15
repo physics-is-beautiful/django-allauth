@@ -16,6 +16,11 @@ class ProviderLoginURLNode(template.Node):
     def render(self, context):
         provider_id = self.provider_id_var.resolve(context)
         request = context.get('request')
+        if not request:
+            try:
+                request = getattr(context, 'request')
+            except AttributeError:
+                raise RuntimeError('Can\'t get request from context!')
         provider = providers.registry.by_id(provider_id, request)
         query = dict([(str(name), var.resolve(context)) for name, var
                       in self.params.items()])
